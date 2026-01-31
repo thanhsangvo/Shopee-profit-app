@@ -17,8 +17,21 @@ st.set_page_config(page_title="Shopee Profit 2026", page_icon="♥️", layout="
 # Thay G-XXXXXXXXXX bằng ID thực tế của bạn
 GA_ID = "G-X11FLFF1S7"
 
-ga_code = f"""
-    <script async src="https://www.googlesyndication.com/pagead/js/adsbygoogle.js?client={GA_ID}" crossorigin="anonymous"></script>
+# ga_code = f"""
+#     <script async src="https://www.googlesyndication.com/pagead/js/adsbygoogle.js?client={GA_ID}" crossorigin="anonymous"></script>
+#     <script async src="https://www.googletagmanager.com/gtag/js?id={GA_ID}"></script>
+#     <script>
+#         window.dataLayer = window.dataLayer || [];
+#         function gtag(){{dataLayer.push(arguments);}}
+#         gtag('js', new Date());
+#         gtag('config', '{GA_ID}');
+#     </script>
+# """
+# Chèn vào app (thường đặt ở đầu hoặc cuối file)
+# components.html(ga_code, height=0)
+
+st.markdown(
+    f"""
     <script async src="https://www.googletagmanager.com/gtag/js?id={GA_ID}"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -26,9 +39,9 @@ ga_code = f"""
         gtag('js', new Date());
         gtag('config', '{GA_ID}');
     </script>
-"""
-# Chèn vào app (thường đặt ở đầu hoặc cuối file)
-components.html(ga_code, height=0)
+    """,
+    unsafe_allow_html=True
+)
 
 # Hàm định dạng tiền tệ chuẩn Việt Nam
 def format_vnd(amount):
@@ -225,7 +238,7 @@ with col_result:
     with res1:
         st.metric(label="Lợi nhuận ròng", value=format_vnd(loi_nhuan), delta=f"{bien_ln:.1f}% (Biên LN)", delta_color="normal" if loi_nhuan > 0 else "inverse")
     with res2:
-        st.metric(label="Tổng phí sàn", value=format_vnd(tong_phi_san), delta="Đã gồm thuế", delta_color="off")
+        st.metric(label="Tổng phí sàn", value=format_vnd(tong_phi_san), delta="Đã gồm thuế GTGT 8%", delta_color="off")
         
     st.markdown('<div class="hoavon-box">', unsafe_allow_html=True)
     st.metric(label="🎯 Giá bán tối thiểu để hòa vốn", value=format_vnd(gia_hoa_von), help="Bán dưới giá này bạn sẽ bị lỗ.")
@@ -325,7 +338,7 @@ if st.session_state.danh_sach_sp:
     st.dataframe(
         df, 
         use_container_width=True,
-        hide_index=True,
+        hide_index=False,
         column_config={
             "Tên SP": st.column_config.TextColumn("Tên sản phẩm", width="medium"),
             "Giá vốn": st.column_config.NumberColumn("Giá vốn", format="%d", help="Đơn vị: VNĐ"),
@@ -367,8 +380,6 @@ if st.session_state.danh_sach_sp:
 else:
     st.info("Chưa có sản phẩm nào được lưu. Hãy nhập thông tin và nhấn 'Lưu vào danh sách'.")
     
-st.markdown("---")
-st.caption("Dữ liệu trích xuất từ phụ lục Phí cố định áp dụng từ 29/12/2025 (đã bao gồm thuế GTGT 8%).")
 
 # --- Hàm tạo file DOCX ---
 def create_docx(ten_sp, gia_ban, gia_von, loi_nhuan, bien_ln, gia_hoa_von, tong_phi_san, tien_thue, phi_bao_bi, phi_ads):
