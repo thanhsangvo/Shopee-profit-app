@@ -253,9 +253,9 @@ with col_result:
     st.markdown('</div>', unsafe_allow_html=True)
     
     # Vẽ biểu đồ
-    labels = ['Giá vốn', 'Phí sàn', 'Thuế', 'Vận hành', 'Lợi nhuận']
-    values = [gia_von, tong_phi_san, tien_thue, (phi_bao_bi + phi_ads), max(0, loi_nhuan)]
-    colors = ['#3498db', '#ff4d2d', '#95a5a6', '#f1c40f', '#2ecc71']
+    labels = ['Giá vốn', 'Phí sàn', 'Thuế', 'Vận hành', 'Lợi nhuận', 'Phí PiShip']
+    values = [gia_von, tong_phi_san, tien_thue, (phi_bao_bi + phi_ads), max(0, loi_nhuan), phi_piship]
+    colors = ['#3498db', '#ff4d2d', '#95a5a6', '#f1c40f', '#2ecc71',  "#2e2ecc"]
 
     fig = go.Figure(data=[go.Pie(labels=labels, values=values, hole=.4, marker=dict(colors=colors, line=dict(color='#ffffff', width=1)), textinfo='percent')])
     fig.update_layout(margin=dict(t=30, b=0, l=0, r=0), height=350, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', legend=dict(orientation="h", yanchor="bottom", y=-0.2, xanchor="center", x=0.5, font=dict(color="gray")), annotations=[dict(text='Cơ cấu', x=0.5, y=0.5, font_size=18, showarrow=False, font=dict(color="gray"))])
