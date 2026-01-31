@@ -12,25 +12,32 @@ import streamlit.components.v1 as components
 # 1. Cấu hình trang & Giao diện
 st.set_page_config(page_title="Shopee Profit 2026", page_icon="♥️", layout="wide")
 
-# 2. Mã Google Analytics chính xác của bạn
-GA_ID = "G-X11FLFF1S7"
+# 2. Nhúng Google Analytics vào một container ẩn
+with st.container():
+    GA_ID = "G-X11FLFF1S7"
+    ga_code = f"""
+        <script async src="https://www.googletagmanager.com/gtag/js?id={GA_ID}"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){{dataLayer.push(arguments);}}
+            gtag('js', new Date());
+            gtag('config', '{GA_ID}', {{
+                'send_page_view': true,
+                'cookie_flags': 'SameSite=None;Secure'
+            }});
+        </script>
+    """
+    # Sử dụng iframe với chiều cao 0 và style ẩn hoàn toàn
+    components.html(ga_code, height=0, width=0)
 
-# Sử dụng mã nhúng tối ưu hơn
-ga_code = f"""
-    <script async src="https://www.googletagmanager.com/gtag/js?id={GA_ID}"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){{dataLayer.push(arguments);}}
-        gtag('js', new Date());
-        gtag('config', '{GA_ID}', {{
-            'send_page_view': true,
-            'cookie_flags': 'SameSite=None;Secure'
-        }});
-    </script>
-"""
-# Nhúng vào app
-components.html(ga_code, height=0)
-
+    # Thêm CSS để ép container này không chiếm diện tích hiển thị
+    st.markdown("""
+        <style>
+            iframe[title="streamlit.components.v1.html"] {
+                display: none;
+            }
+        </style>
+    """, unsafe_allow_html=True)
 # 1. Khởi tạo session_state để lưu danh sách sản phẩm
 if 'danh_sach_sp' not in st.session_state:
     st.session_state.danh_sach_sp = []
@@ -199,6 +206,8 @@ with col_input:
     with g1:
         fsx = st.checkbox("Freeship Xtra (7%)", value=True)
         hxx = st.checkbox("Hoàn Xu Xtra (5%)", value=False)
+        # Thêm gói PiShip ở đây
+        piship = st.checkbox("Gói PiShip (1.620đ/đơn)", value=False, help="Phí cố định theo mỗi đơn hàng thành công")
     with g2:
         phi_bao_bi = st.number_input("Phí bao bì/ đóng gói", value=2000, step=500, format="%d")
         st.caption(f"Xác nhận: :blue[{format_vnd(phi_bao_bi)}]")
@@ -213,15 +222,16 @@ tien_phi_co_dinh = gia_ban * (phi_nganh_hang / 100)
 tien_fsx = min(gia_ban * 0.07, 40000) if fsx else 0
 tien_hxx = min(gia_ban * 0.05, 20000) if hxx else 0
 tien_thue = gia_ban * (thue_tncn / 100)
+phi_piship = 1620 if piship else 0  # Phí PiShip cố định
 
-tong_phi_san = tien_phi_thanh_toan + tien_phi_co_dinh + tien_fsx + tien_hxx
+tong_phi_san = tien_phi_thanh_toan + tien_phi_co_dinh + tien_fsx + tien_hxx + phi_piship
 tong_chi_phi = gia_von + tong_phi_san + tien_thue + phi_bao_bi + phi_ads
 loi_nhuan = gia_ban - tong_chi_phi
 bien_ln = (loi_nhuan / gia_ban * 100) if gia_ban > 0 else 0
 
 # Tính giá hòa vốn
 tong_phi_pct = phi_thanh_toan + phi_nganh_hang + thue_tncn + (7.0 if fsx else 0) + (5.0 if hxx else 0)
-gia_hoa_von = (gia_von + phi_bao_bi + phi_ads) / (1 - tong_phi_pct/100) if tong_phi_pct < 100 else 0
+gia_hoa_von = (gia_von + phi_bao_bi + phi_ads + phi_piship) / (1 - tong_phi_pct/100) if tong_phi_pct < 100 else 0
 
 # 5. Hiển thị kết quả
 with col_result:
@@ -414,6 +424,8 @@ def create_docx(ten_sp, gia_ban, gia_von, loi_nhuan, bien_ln, gia_hoa_von, tong_
     phi_para.add_run(f"- Thuế TNCN & GTGT (1.5%): {format_vnd(tien_thue)}\n")
     phi_para.add_run(f"- Phí đóng gói: {format_vnd(phi_bao_bi)}\n")
     phi_para.add_run(f"- Phí Marketing/Ads: {format_vnd(phi_ads)}")
+    if phi_piship > 0:
+        phi_para.add_run(f"- Gói PiShip: {format_vnd(phi_piship)}\n")
 
     # Lời kết
     doc.add_paragraph('\n---')
