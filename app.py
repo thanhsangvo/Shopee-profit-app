@@ -7,29 +7,34 @@ from docx.shared import Inches, Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 import streamlit.components.v1 as components
 
-# 1. Khởi tạo session_state để lưu danh sách sản phẩm
-if 'danh_sach_sp' not in st.session_state:
-    st.session_state.danh_sach_sp = []
+
     
 # 1. Cấu hình trang & Giao diện
 st.set_page_config(page_title="Shopee Profit 2026", page_icon="♥️", layout="wide")
 
-# Mã Google Analytics từ ảnh của bạn
-GA_ID = "G-X11FLFF1S7" 
+# 2. Mã Google Analytics chính xác của bạn
+GA_ID = "G-X11FLFF1S7"
 
+# Sử dụng mã nhúng tối ưu hơn
 ga_code = f"""
     <script async src="https://www.googletagmanager.com/gtag/js?id={GA_ID}"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){{dataLayer.push(arguments);}}
         gtag('js', new Date());
-        gtag('config', '{GA_ID}');
+        gtag('config', '{GA_ID}', {{
+            'send_page_view': true,
+            'cookie_flags': 'SameSite=None;Secure'
+        }});
     </script>
 """
-
-# Chèn vào app (đặt chiều cao = 0 để không hiện khoảng trắng)
+# Nhúng vào app
 components.html(ga_code, height=0)
 
+# 1. Khởi tạo session_state để lưu danh sách sản phẩm
+if 'danh_sach_sp' not in st.session_state:
+    st.session_state.danh_sach_sp = []
+    
 # Hàm định dạng tiền tệ chuẩn Việt Nam
 def format_vnd(amount):
     return f"{amount:,.0f}".replace(",", ".") + " đ"
@@ -133,6 +138,7 @@ st.caption("Dữ liệu phí cố định trích xuất từ chính sách mới 
 st.sidebar.header("⚙️ Cài đặt chi phí sàn")
 phi_thanh_toan = st.sidebar.number_input("Phí thanh toán (%)", value=4.91, step=0.01, help="Mặc định 4.91% theo quy định mới")
 thue_tncn = st.sidebar.number_input("Thuế TNCN & GTGT (%)", value=1.5, step=0.1, help="Thường là 1.5% doanh thu cho hộ kinh doanh")
+
 
 # Link ảnh sản phẩm thực tế từ Shopee
 url_anh_sp = "https://down-vn.img.susercontent.com/file/vn-11134207-820l4-mhurso4d84xv4e.webp" # Đây là ví dụ ảnh máy in
