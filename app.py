@@ -14,24 +14,10 @@ if 'danh_sach_sp' not in st.session_state:
 # 1. Cấu hình trang & Giao diện
 st.set_page_config(page_title="Shopee Profit 2026", page_icon="♥️", layout="wide")
 
-# Thay G-XXXXXXXXXX bằng ID thực tế của bạn
-GA_ID = "G-X11FLFF1S7"
+# Mã Google Analytics từ ảnh của bạn
+GA_ID = "G-X11FLFF1S7" 
 
-# ga_code = f"""
-#     <script async src="https://www.googlesyndication.com/pagead/js/adsbygoogle.js?client={GA_ID}" crossorigin="anonymous"></script>
-#     <script async src="https://www.googletagmanager.com/gtag/js?id={GA_ID}"></script>
-#     <script>
-#         window.dataLayer = window.dataLayer || [];
-#         function gtag(){{dataLayer.push(arguments);}}
-#         gtag('js', new Date());
-#         gtag('config', '{GA_ID}');
-#     </script>
-# """
-# Chèn vào app (thường đặt ở đầu hoặc cuối file)
-# components.html(ga_code, height=0)
-
-st.markdown(
-    f"""
+ga_code = f"""
     <script async src="https://www.googletagmanager.com/gtag/js?id={GA_ID}"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -39,9 +25,10 @@ st.markdown(
         gtag('js', new Date());
         gtag('config', '{GA_ID}');
     </script>
-    """,
-    unsafe_allow_html=True
-)
+"""
+
+# Chèn vào app (đặt chiều cao = 0 để không hiện khoảng trắng)
+components.html(ga_code, height=0)
 
 # Hàm định dạng tiền tệ chuẩn Việt Nam
 def format_vnd(amount):
