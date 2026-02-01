@@ -146,7 +146,17 @@ st.sidebar.header("⚙️ Cài đặt chi phí sàn")
 phi_thanh_toan = st.sidebar.number_input("Phí thanh toán (%)", value=4.91, step=0.01, help="Mặc định 4.91% theo quy định mới")
 thue_tncn = st.sidebar.number_input("Thuế TNCN & GTGT (%)", value=1.5, step=0.1, help="Thường là 1.5% doanh thu cho hộ kinh doanh")
 
+# Lựa chọn loại Shop (Mặc định là Shop Thường)
+loai_shop = st.sidebar.radio("Loại hình Shop", ["Shop Thường/SYT", "Shopee Mall"], index=0)
 
+# Xác định % phí dịch vụ dựa trên loại shop
+if loai_shop == "Shopee Mall":
+    phan_tram_fsx = 6.0  # Mall rẻ hơn 1%
+    phan_tram_hxx = 4.0  # Mall rẻ hơn 1%
+else:
+    phan_tram_fsx = 7.0
+    phan_tram_hxx = 5.0
+    
 # Link ảnh sản phẩm thực tế từ Shopee
 url_anh_sp = "https://down-vn.img.susercontent.com/file/vn-11134207-820l4-mhurso4d84xv4e.webp" # Đây là ví dụ ảnh máy in
 url_sp = "https://s.shopee.vn/1gCmjbDbTa"
@@ -204,8 +214,8 @@ with col_input:
     st.subheader("🚀 Gói dịch vụ tham gia")
     g1, g2 = st.columns(2)
     with g1:
-        fsx = st.checkbox("Freeship Xtra (7%)", value=True)
-        hxx = st.checkbox("Hoàn Xu Xtra (5%)", value=False)
+        fsx_active = st.checkbox(f"Freeship Xtra ({phan_tram_fsx}%)", value=True)
+        hxx_active = st.checkbox(f"Hoàn Xu Xtra ({phan_tram_hxx}%)", value=False)
         # Thêm gói PiShip ở đây
         piship = st.checkbox("Gói PiShip (1.620đ/đơn)", value=False, help="Phí cố định theo mỗi đơn hàng thành công")
     with g2:
@@ -219,10 +229,13 @@ with col_input:
 phi_ship_shopee = 0 
 tien_phi_thanh_toan = gia_ban * (phi_thanh_toan / 100)
 tien_phi_co_dinh = gia_ban * (phi_nganh_hang / 100)
-tien_fsx = min(gia_ban * 0.07, 40000) if fsx else 0
-tien_hxx = min(gia_ban * 0.05, 20000) if hxx else 0
+
+# Sử dụng biến phan_tram_fsx và phan_tram_hxx đã định nghĩa ở trên
+tien_fsx = min(gia_ban * (phan_tram_fsx / 100), 40000) if fsx_active else 0
+tien_hxx = min(gia_ban * (phan_tram_hxx / 100), 20000) if hxx_active else 0
+
 tien_thue = gia_ban * (thue_tncn / 100)
-phi_piship = 1620 if piship else 0  # Phí PiShip cố định
+phi_piship = 1620 if piship else 0
 
 tong_phi_san = tien_phi_thanh_toan + tien_phi_co_dinh + tien_fsx + tien_hxx + phi_piship
 tong_chi_phi = gia_von + tong_phi_san + tien_thue + phi_bao_bi + phi_ads
@@ -230,7 +243,11 @@ loi_nhuan = gia_ban - tong_chi_phi
 bien_ln = (loi_nhuan / gia_ban * 100) if gia_ban > 0 else 0
 
 # Tính giá hòa vốn
-tong_phi_pct = phi_thanh_toan + phi_nganh_hang + thue_tncn + (7.0 if fsx else 0) + (5.0 if hxx else 0)
+# Tính giá hòa vốn (Cập nhật công thức PCT)
+tong_phi_pct = phi_thanh_toan + phi_nganh_hang + thue_tncn + \
+               (phan_tram_fsx if fsx_active else 0) + \
+               (phan_tram_hxx if hxx_active else 0)
+
 gia_hoa_von = (gia_von + phi_bao_bi + phi_ads + phi_piship) / (1 - tong_phi_pct/100) if tong_phi_pct < 100 else 0
 
 # 5. Hiển thị kết quả
